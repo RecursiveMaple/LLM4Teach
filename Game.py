@@ -204,6 +204,7 @@ class Game:
                 action = action.to("cpu").numpy()
                 
                 # get action from teacher policy
+                # obs: ndarray, shape (1, 10, 10, 4)
                 teacher_probs = self.teacher_policy(obs[0])
                 
                 # interact with env

@@ -23,8 +23,8 @@ class Conversation:
     
 conv = Conversation(
     system="A chat between a curious user and an artificial intelligence assistant. ",
-    roles=(["USER", "Assistant"]),
-    prompt=(),
+    roles=(["user", "assistant"]),
+    messages=(),
 )
 
 
@@ -42,12 +42,12 @@ class Request(BaseModel):
     
 
 @app.post("/v1/chat/completions")
-async def chat_completion(request: Request):
+def chat_completion(request: Request):
     """Creates a completion for the chat message"""
-    conv.prompt =[]
-    payload = generate_payload(request.prompt)    
-    content = await invoke_example(request.model, payload)
-    
+    conv.messages =[]
+    payload = generate_payload(request.prompt) 
+    content = invoke_example(request.model, payload)
+
     generate_payload(content)
         
         
@@ -56,28 +56,27 @@ async def chat_completion(request: Request):
     
 
 
-import zhipuai
+from zhipuai import ZhipuAI
  
 # your api key
-zhipuai.api_key = "you_api_key"
+api_key = "699d2724609b25475e617af3e918288d.fj9v0UWEgfcURTm9"
+client = ZhipuAI(api_key=api_key)
 
-async def invoke_example(model,prompt):
-
-    response = zhipuai.model_api.invoke(
-        model= model,
-        prompt=prompt,
+def invoke_example(model,prompt):
+    response = client.chat.completions.create(
+	    model="GLM-4",
+	    messages=prompt,
         top_p=0.7,
         temperature=0.7,
-    )
+	)
     
-    return response['data']['choices']
+    return [dict(response.choices[0].message)]
 
 
 
 def generate_payload(messages: List[Dict[str, str]]):
-
-    conv.prompt = list(conv.prompt)
-    for message in prompt:
+    conv.messages = []
+    for message in messages:
        
         msg_role = message["role"]
         
@@ -92,11 +91,11 @@ def generate_payload(messages: List[Dict[str, str]]):
   
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="ChatGLM-compatible Restful API server.")
-    parser.add_argument("--host", type=str, default="10.109.116.3", help="host name")
+    parser.add_argument("--host", type=str, default="localhost", help="host name")
     parser.add_argument("--port", type=int, default=6000, help="port number")
  
     args = parser.parse_args()
-    uvicorn.run("chatglm-api:app", host=args.host, port=args.port, reload=False)
+    uvicorn.run("utils.chatglm_api:app", host=args.host, port=args.port, reload=False)
     
     
     

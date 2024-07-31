@@ -34,10 +34,12 @@ class Base_Planner(ABC):
         self.show_dialogue = False
         
         if not offline:
-            self.llm_model = "vicuna-33b"
-            self.llm_url = 'http://localhost:3300/v1/chat/completions'
-            # self.llm_model = "chatglm_Turbo"
-            # self.llm_url = 'http://10.109.116.3:6000/chat'
+            # self.llm_model = "vicuna-33b"
+            # self.llm_url = 'http://localhost:3300/v1/chat/completions'
+            self.llm_model = "chatglm_Turbo"
+            self.llm_url = 'http://localhost:6000/v1/chat/completions'
+            # self.llm_model = "openai"
+            # self.llm_url = 'https://kimi.api.droneinterface.com/v1/chat/completions'
             self.plans_dict = {}
             if self.llm_model == "vicuna-33b":
                 self.init_llm()
