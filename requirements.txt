@@ -1,0 +1,9 @@
+gymnasium
+torch
+torch_ac
+fastapi
+zhipuai
+opencv-python
+minigrid
+requests
+tensorboard
