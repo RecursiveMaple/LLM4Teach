@@ -80,6 +80,7 @@ target/
 test.ipynb
 log/
 .vscode/
+test.py
 
 # IPython
 profile_default/
