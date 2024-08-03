@@ -29,6 +29,15 @@
         "description": "In a locked 2D grid room, agent can only open door while holding a key that matches color of door. Agent can perform following actions: explore, go to <object>, pick up <object>, drop <object>, or open <object>. Agent can only hold one object. Please clarify which object agent sees and holds given information provided. Then, please inference what agent can do in current state. Finally, please select the correct actions.",
         "example":  "\n Example: \n Agent sees <key>, holds <nothing>. \n 1. What agent sees and holds: Agent sees key, holds nothing, has not seen door yet. \n 2. What should agent do: Agent should first go to key, and then pick up key. \n 3. Action: {go to <key>, pick up <key>} \n.",
         "configurations": "MiniGrid-ColoredDoorKey-Min5-Max10-View3"
+    },
+
+    "driving":{
+        "episode": 50,
+        "level": "medium",
+        "description": "You are a driver and your task is to drive your car from the starting point to the destination in the game environment while avoiding collisions with other vehicles. Your local observation consists of 6 parts: your surroundings, current speed, current position coordinates, destination position coordinates, whether you have reached your destination, and whether a collision has occurred. Your surroundings are represented by an ascii diagram, where 'V' stands for vehicle, '#' stands for wall, '0' stands for road, 'D' stands for destination, and the 'V' in the middle of the penultimate row is your own car. Your surroundings use your own car as a reference, and the first three lines describe the front of the car. You can perform the following actions: DO_NOTHING, ACCELERATE, DECELERATE, TURN_RIGHT, or TURN_LEFT. \n Each step after this the user will give you the current localized observation, according to which please describe briefly in one sentence the surroundings as you see them. Then, in one sentence, infer what you should do in the current state. Finally, choose the next step. Don't do any other outputs, don't summarize your outputs, and in your last sentence just output an action, not a sequence of actions, the action should be enclosed in curly brackets.",
+        "description-cn":"你是一个驾驶员，你的任务是在游戏环境中驾驶你的车从起点到达目的地，同时避免与其他车辆相撞。你的局部观察由6部分组成：你的周围环境、当前速度、当前位置坐标、目的地位置坐标、是否到达了目的地、是否发生了碰撞。你的周围环境由一个ascii图表示，其中'V'代表车辆、'#'代表墙、'0'代表道路、'D'代表目的地，倒数第二行中间的'V'是你自己的车。你周围的环境以你自己的车作为参照物，前三行描述车的前方。你可以执行以下动作：DO_NOTHING、ACCELERATE、DECELERATE、TURN_RIGHT、或TURN_LEFT。\n之后的每一步用户会给你当前的局部观测，请据此用一句话简略描述你看到的周围环境。然后，请用一句话推断在当前状态下你应该做什么。最后，请选择接下来驾驶员的一步动作。不要有任何其他的输出，不要给你的输出做总结，最后只需要输出一个动作，而不是一个动作序列，动作用花括号包围起来。",
+        "example": "\nFollow the example: \nUser: \nSurroundings: \n###\n###\nD##\n#V#\n#0# \nSpeed: STOPPED, Current Location: (13, 1), Destination Location: (12, 0), Reached: False, Crashed: False \nYou: \n1. Agent sees walls to the left, front, and right, and a road to the rear, doesn't see any other vehicles, sees the destination to the left front. 2. What should agent do: Agent should turnaround and go to the destination. 3. Action: {TURN_LEFT}.",
+        "configurations": "Driving14x14WideRoundAbout-n2-v0"
     }
 
 }

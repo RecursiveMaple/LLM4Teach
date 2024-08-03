@@ -1,42 +1,20 @@
-import os
-import json
 import numpy
 import re
 import torch
-import torch_ac
-import gymnasium as gym
 
-import utils
-
+def flatten_tuple(t):
+    for item in t:
+        if isinstance(item, tuple):
+            yield from flatten_tuple(item)
+        else:
+            yield int(item)
 
 def get_obss_preprocessor(obs_space):
-    # Check if obs_space is an image space
-    if isinstance(obs_space, gym.spaces.Box):
-        obs_space = {"image": obs_space.shape}
-
-        def preprocess_obss(obss, device=None):
-            return torch_ac.DictList({
-                "image": preprocess_images(obss, device=device)
-            })
-
     # Check if it is a MiniGrid observation space
-    elif isinstance(obs_space, gym.spaces.Dict) and "image" in obs_space.spaces.keys():
-        obs_space = {"image": obs_space.spaces["image"].shape, "text": 100}
+    sample = obs_space.sample()
+    obs_space = len(tuple(flatten_tuple(sample)))
 
-        vocab = Vocabulary(obs_space["text"])
-
-        def preprocess_obss(obss, device=None):
-            return torch_ac.DictList({
-                "image": preprocess_images([obs["image"] for obs in obss], device=device),
-                "text": preprocess_texts([obs["mission"] for obs in obss], vocab, device=device)
-            })
-
-        preprocess_obss.vocab = vocab
-
-    else:
-        raise ValueError("Unknown observation space: " + str(obs_space))
-
-    return obs_space, preprocess_obss
+    return obs_space
 
 
 def preprocess_images(images, device=None):

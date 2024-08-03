@@ -49,7 +49,8 @@ def evaluate(args):
 if __name__ == "__main__":
     utils.print_logo(subtitle="Maintained by Research Center for Applied Mathematics and Machine Intelligence, Zhejiang Lab")
     parser = argparse.ArgumentParser()
-    parser.add_argument("--task", type=str, default="SimpleDoorKey", help="SimpleDoorKey, KeyInBox, RandomBoxKey, ColoredDoorKey, DynamicDoorKey") 
+    # TODO: add MA tasks here
+    parser.add_argument("--task", type=str, default="Driving", help="Driving") 
     
     # parser.add_argument("--env_seed", type=int, default=0)
     parser.add_argument("--env_seed_list", type=int, nargs="*", default=[0], help="Seeds for evaluation environments")
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     parser.add_argument("--eval_teacher", default=False, action='store_true')
     parser.add_argument("--num_eval", type=int, default=10)
     parser.add_argument("--eval_interval", type=int, default=10)
-    parser.add_argument("--save_interval", type=int, default=100)
+    parser.add_argument("--save_interval", type=int, default=1000)
     
     if sys.argv[1] == 'eval':
         sys.argv.remove(sys.argv[1])

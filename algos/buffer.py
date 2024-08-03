@@ -68,12 +68,11 @@ class Buffer:
         Append one timestep of agent-environment interaction to the buffer.
         """
         # TODO: make sure these dimensions really make sense
-        # print(obs.shape, action.shape, reward.shape, value.shape, log_probs.shape)
-        self.obs  += [state.squeeze(0)]
-        self.actions += [action.squeeze()]
-        self.rewards += [reward.squeeze()]
-        self.values  += [value.squeeze()]
-        self.log_probs += [log_probs.squeeze()]
+        self.obs  += [state]
+        self.actions += [action]
+        self.rewards += [reward]
+        self.values  += [value]
+        self.log_probs += [log_probs]
         self.teacher_probs += [teacher_probs]
         self.ptr += 1
 

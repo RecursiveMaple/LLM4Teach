@@ -1,9 +1,4 @@
 import numpy as np
-import torch
-import torch.nn as nn
-import gymnasium as gym
-import minigrid
-from minigrid.core.constants import DIR_TO_VEC
 
 '''
 OBJECT_TO_IDX = {

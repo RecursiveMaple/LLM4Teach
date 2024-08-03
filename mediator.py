@@ -183,121 +183,6 @@ class Base_Mediator(ABC):
     
     def reset(self):
         self.obj_coordinate = {}
-
-class SimpleDoorKey_Mediator(Base_Mediator):
-    def __init__(self, soft):
-        super().__init__(soft)
-
-    def RL2LLM(self, obs):
-        return super().RL2LLM(obs, color_info=False)
-    
-    def parser(self, plan):
-        skill_list = []
-        skills = plan.split(',')
-        for text in skills:
-            # action:
-            if "explore" in text:
-                act = SKILL_TO_IDX["explore"]
-            elif "go to" in text:
-                act = SKILL_TO_IDX["go to object"]
-            elif "pick up" in text:
-                act = SKILL_TO_IDX["pickup"]
-            elif "drop" in text:
-                act = SKILL_TO_IDX["drop"]
-            elif "open" in text:
-                act = SKILL_TO_IDX["toggle"]
-            else:
-                # print("Unknown Planning :", text)
-                act = 6 # do nothing
-            # object:
-            try:
-                if "door" in text:
-                    obj = OBJECT_TO_IDX["door"]
-                    coordinate = self.obj_coordinate["door"]
-                elif "key" in text:
-                    obj = OBJECT_TO_IDX["key"]
-                    coordinate = self.obj_coordinate["key"]
-                elif "explore" in text:
-                    obj = OBJECT_TO_IDX["empty"]
-                    coordinate = None
-                else:
-                    assert False
-            except:
-                # print("Unknown Planning :", text)
-                act = 6 # do nothing
-                obj = OBJECT_TO_IDX["empty"]
-                coordinate = None
-
-            skill = {"action": act,
-                     "object": obj,
-                     "coordinate": coordinate,}
-            skill_list.append(skill)
-        
-        return skill_list
-    
-
-class ColoredDoorKey_Mediator(Base_Mediator):
-    def __init__(self, soft):
-        super().__init__(soft)
-
-    def RL2LLM(self, obs):
-        return super().RL2LLM(obs)
-    
-    def parser(self, plan):
-        skill_list = []
-        skills = plan.split(',')
-        for text in skills:
-            # action:
-            if "explore" in text:
-                act = SKILL_TO_IDX["explore"]
-            elif "go to" in text:
-                act = SKILL_TO_IDX["go to object"]
-            elif "pick up" in text:
-                act = SKILL_TO_IDX["pickup"]
-            elif "drop" in text:
-                act = SKILL_TO_IDX["drop"]
-            elif "open" in text:
-                act = SKILL_TO_IDX["toggle"]
-            else:
-                print("Unknown Planning :", text)
-                act = 6 # do nothing
-            # object:
-            try:
-                if "door" in text:
-                    obj = OBJECT_TO_IDX["door"]
-                    words = text.split(' ')
-                    filter_words = []
-                    for w in words:
-                        w1="".join(c for c in w if c.isalpha())
-                        filter_words.append(w1)
-                    object_word = filter_words[-2] + " " + filter_words[-1]
-                    coordinate = self.obj_coordinate[object_word]
-                elif "key" in text:
-                    obj = OBJECT_TO_IDX["key"]    
-                    words = text.split(' ')
-                    filter_words = []
-                    for w in words:
-                        w1="".join(c for c in w if c.isalpha())
-                        filter_words.append(w1)
-                    object_word = filter_words[-2] + " " + filter_words[-1]
-                    coordinate = self.obj_coordinate[object_word]
-                elif "explore" in text:
-                    obj = OBJECT_TO_IDX["empty"]
-                    coordinate = None
-                else:
-                    assert False
-            except:
-                print("Unknown Planning :", text)
-                act = 6 # do nothing
-                obj = OBJECT_TO_IDX["empty"]
-                coordinate = None
-                
-            skill = {"action": act,
-                     "object": obj,
-                     "coordinate": coordinate,}
-            skill_list.append(skill)
-        
-        return skill_list
     
 class TwoDoor_Mediator(Base_Mediator):
     def __init__(self, soft):
@@ -391,6 +276,47 @@ class TwoDoor_Mediator(Base_Mediator):
         
         return skill_list
 
+class Driving_Mediator(Base_Mediator):
+    def __init__(self, soft):
+        super().__init__(soft)
+        self.ACTION_TO_IDX = {
+            "DO_NOTHING": 0,
+            "ACCELERATE": 1,
+            "DECELERATE": 2,
+            "TURN_RIGHT": 3,
+            "TURN_LEFT": 4,
+        }
+        self.TILE_IDX_TO_ASCII = {
+            0: "V",
+            1: "#",
+            2: "0",
+            3: "D",
+        }
+        self.SPEED_IDX_TO_STR = {
+            0: "REVERSE",
+            1: "STOPPED",
+            2: "FORWARD_SLOW",
+            3: "FORWARD_FAST",
+        }
+        self.PROMPT_TEMPLATE = "Surroundings: {} \nSpeed: {}, Current Location: {}, Destination: {}, Reached: {}, Crashed: {}"
+
+    def RL2LLM(self, obs):
+        localmap, speed, currloc, destloc, reached, crashed = obs[:15], obs[15], obs[16:18], obs[18:20], obs[20], obs[21]
+        localmap_ascii = ''.join([self.TILE_IDX_TO_ASCII[tile] for tile in localmap])
+        localmap = f"\n{localmap_ascii[:3]}\n{localmap_ascii[3:6]}\n{localmap_ascii[6:9]}\n{localmap_ascii[9:12]}\n{localmap_ascii[12:]}"
+        speed = self.SPEED_IDX_TO_STR[speed]
+        currloc = tuple(currloc)
+        destloc = tuple(destloc)
+
+        return self.PROMPT_TEMPLATE.format(localmap, speed, currloc, destloc, str(reached==1), str(crashed==1))
+    
+    def parser(self, plan):
+        for act in self.ACTION_TO_IDX:
+            if act in plan:
+                return self.ACTION_TO_IDX[act]
+        else:
+            # do nothing
+            return 0
 
 if __name__ == "__main__":
     word = get_minigrid_words()

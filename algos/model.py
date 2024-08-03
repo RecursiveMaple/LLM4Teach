@@ -18,23 +18,32 @@ import numpy as np
 class NNBase(nn.Module):
     def __init__(self, obs_space, action_space):
         super().__init__()
-        width, height, channel = obs_space["image"]
-    
-        # Define image embedding
-        self.image_conv = nn.Sequential(
-            nn.Conv2d(channel, 16, (3, 3), padding=1),
-            nn.ReLU(),
-            # nn.MaxPool2d((2, 2)),
-            nn.Conv2d(16, 32, (3, 3), padding=1),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, (3, 3), padding=1),
-            nn.ReLU()
-        )
+        # Define embedding
+        self.ln0 = nn.LayerNorm(obs_space)
+        self.fc1 = nn.Linear(obs_space, obs_space)
+        self.silu1 = nn.SiLU()
+        self.ln1 = nn.LayerNorm(obs_space)
+        self.fc2 = nn.Linear(obs_space, obs_space)
+        self.silu2 = nn.SiLU()
+        self.ln2 = nn.LayerNorm(2*obs_space)
+        self.fc3 = nn.Linear(2*obs_space, 2*obs_space)
+        self.silu3 = nn.SiLU()
+        self.ln3 = nn.LayerNorm(4*obs_space)
+        self.fc4 = nn.Linear(4*obs_space, 4*obs_space)
+        self.silu4 = nn.SiLU()
+        self.ln4 = nn.LayerNorm(4*obs_space)
         
-        dummy_x = torch.zeros((1, channel, height, width))
-        embedding_size = np.prod(self.image_conv(dummy_x).shape)
+        embedding_size = 4 * obs_space
         return embedding_size, action_space
     
+    def embed(self, x):
+        x = self.ln0(x)
+        x = self.ln1(self.silu1(self.fc1(x)) + x)
+        x = self.ln2(torch.cat((self.silu2(self.fc2(x)), x), dim=-1))
+        x = self.ln3(torch.cat((self.silu3(self.fc3(x)), x), dim=-1))
+        x = self.ln4(self.silu4(self.fc4(x)))
+        return x
+
     def forward(self, obs, masks=None, states=None):
         raise NotImplementedError
 
@@ -83,15 +92,11 @@ class MLPBase(NNBase):
         return None
 
     def forward(self, obs, masks=None, states=None):
-        input_dim = len(obs.size())
-        assert input_dim == 4, "observation dimension expected to be 4, but got {}.".format(input_dim)
+        input_dim = obs.dim()
+        assert input_dim == 2, "observation dimension expected to be 2, but got {}.".format(input_dim)
         
         # feature extractor
-        x = obs.transpose(1, 3) # [num_trans, channels, height, width]
-        x = self.image_conv(x)
-        x = x.reshape(x.shape[0], -1) # [num_trans, -1]
-        embedding = x
-        # embedding = self.fc(x)
+        embedding = self.embed(obs)
 
         # actor-critic
         value = self.critic(embedding).squeeze(1)
@@ -129,20 +134,18 @@ class LSTMBase(NNBase):
                 torch.zeros(self.core.num_layers, num_trajs, self.core.hidden_size).to(device))
 
     def forward(self, obs, masks, states):
-        input_dim = len(obs.size())
-        if input_dim == 4:
-            unroll_length = obs.shape[0]
+        input_dim = obs.dim()
+        if input_dim == 2:
+            unroll_length = obs.size(0)
             num_trajs = 1
-        elif len(obs.size()) == 5:
-            unroll_length, num_trajs, *_ = obs.shape
+        elif input_dim == 3:
+            unroll_length, num_trajs, _ = obs.size()
             obs = torch.flatten(obs, 0, 1) # [unroll_length * num_trajs, width, height, channels]
         else:
             assert False, "observation dimension expected to be 4 or 5, but got {}.".format(input_dim)
 
         # feature extractor
-        x = obs.transpose(1, 3) # [unroll_length * num_trajs, channels, height, width]
-        x = self.image_conv(x)
-        x = x.reshape(unroll_length * num_trajs, -1) # [unroll_length * num_trajs, -1]
+        x = self.embed(x)
         x = self.fc(x)
         
         # LSTM
