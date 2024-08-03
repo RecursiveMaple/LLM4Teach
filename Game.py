@@ -98,10 +98,17 @@ class Game:
         self.obs_spaces = {k: utils.get_obss_preprocessor(v) for k, v in self.env.observation_spaces.items()}
         self.action_spaces = {k: v.n for k, v in self.env.action_spaces.items()}
 
-        prefix = task_info[task]['description'] + task_info[task]['example']
+        prefix = {}
+        if isinstance(task_info[task]['description'], str):
+            for agent in self.obs_spaces:
+                prefix[agent] = task_info[task]['description'] + task_info[task]['example']
+        else:
+            for agent in task_info[task]['description']:
+                prefix[agent] = task_info[task]['description'][agent] + task_info[task]['example'][agent]
+
         self.teacher_policies = {}
         for agent in self.obs_spaces:
-            self.teacher_policies[agent] = TeacherPolicy(task, offline, soft, prefix, self.action_spaces[agent])
+            self.teacher_policies[agent] = TeacherPolicy(task, offline, soft, prefix[agent], self.action_spaces[agent])
             
     def train(self):
         start_time = time.time()
