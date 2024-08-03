@@ -292,23 +292,14 @@ class Driving_Mediator(Base_Mediator):
             2: "0",
             3: "D",
         }
-        self.SPEED_IDX_TO_STR = {
-            0: "REVERSE",
-            1: "STOPPED",
-            2: "FORWARD_SLOW",
-            3: "FORWARD_FAST",
-        }
-        self.PROMPT_TEMPLATE = "Surroundings: {} \nSpeed: {}, Current Location: {}, Destination: {}, Reached: {}, Crashed: {}"
+        self.PROMPT_TEMPLATE = "Surroundings: {}"
 
     def RL2LLM(self, obs):
-        localmap, speed, currloc, destloc, reached, crashed = obs[:15], obs[15], obs[16:18], obs[18:20], obs[20], obs[21]
+        localmap = obs[:15]
         localmap_ascii = ''.join([self.TILE_IDX_TO_ASCII[tile] for tile in localmap])
         localmap = f"\n{localmap_ascii[:3]}\n{localmap_ascii[3:6]}\n{localmap_ascii[6:9]}\n{localmap_ascii[9:12]}\n{localmap_ascii[12:]}"
-        speed = self.SPEED_IDX_TO_STR[speed]
-        currloc = tuple(currloc)
-        destloc = tuple(destloc)
 
-        return self.PROMPT_TEMPLATE.format(localmap, speed, currloc, destloc, str(reached==1), str(crashed==1))
+        return self.PROMPT_TEMPLATE.format(localmap)
     
     def parser(self, plan):
         for act in self.ACTION_TO_IDX:

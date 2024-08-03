@@ -52,6 +52,7 @@ from zhipuai import ZhipuAI
 # your api key
 api_key = "699d2724609b25475e617af3e918288d.fj9v0UWEgfcURTm9"
 client = ZhipuAI(api_key=api_key)
+tools = [{"type": "web_search", "web_search": {"enable": False}}]
 
 def invoke_example(model, prompt):
     response = client.chat.completions.create(
@@ -59,6 +60,7 @@ def invoke_example(model, prompt):
 	    messages=prompt,
         top_p=0.7,
         temperature=0.7,
+        tools=tools,
 	)
     
     return response.choices[0].message.content
