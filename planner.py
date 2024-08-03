@@ -102,7 +102,7 @@ class Base_Planner(ABC):
             print(f"LLM response invalid format: '{result}'.")
             return self.query_codex(prompt_text)   
         
-    def plan(self, text, n_ask=10):
+    def plan(self, text, n_ask=5):
         if self.llm_model.startswith("GLM"):
             self.messages.append(text)
         if text in self.plans_dict.keys():
