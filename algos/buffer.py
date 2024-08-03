@@ -93,10 +93,10 @@ class Buffer:
     def get(self):
         return(
             np.array(self.obs),
-            np.array(self.actions),
-            np.array(self.returns),
-            np.array(self.values),
-            np.array(self.log_probs),
+            np.array(self.actions).squeeze(),
+            np.array(self.returns).squeeze(),
+            np.array(self.values).squeeze(),
+            np.array(self.log_probs).squeeze(),
             np.array(self.teacher_probs)
         )
 
