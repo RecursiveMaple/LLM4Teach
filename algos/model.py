@@ -92,8 +92,9 @@ class MLPBase(NNBase):
         return None
 
     def forward(self, obs, masks=None, states=None):
-        input_dim = obs.dim()
-        assert input_dim == 2, "observation dimension expected to be 2, but got {}.".format(input_dim)
+        if obs.dim() == 1:
+            obs = obs.unsqueeze(0)
+        assert obs.dim() == 2, "observation dimension expected to be 2, but got {}.".format(obs.dim())
         
         # feature extractor
         embedding = self.embed(obs)
@@ -105,7 +106,7 @@ class MLPBase(NNBase):
 
         return dist, value, embedding
         
-
+# TODO: debug LSTM model
 class LSTMBase(NNBase):
     def __init__(self, obs_space, action_space):
         embedding_size, action_space = super().__init__(obs_space, action_space)

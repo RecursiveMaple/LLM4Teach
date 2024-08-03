@@ -153,7 +153,7 @@ class Game:
                 for agent in self.student_policies:
                     eval_returns[agent] = []
                     eval_success[agent] = []
-                for i in range(self.num_eval):
+                for _ in range(self.num_eval):
                     eval_outputs = self.evaluate(itr, record_frames=False)
                     eval_lens.append(eval_outputs[1])
                     for agent in self.student_policies:
@@ -192,8 +192,8 @@ class Game:
                     sys.stdout.write("| %25s | %15s |" % ('Episode Length (eval) ', round(avg_eval_len,2)) + "\n")
                     self.logger.add_scalar("Test/Eplen", avg_eval_len, itr)
                     for agent in eval_returns:
-                        avg_eval_reward = np.mean(eval_returns)
-                        eval_success_rate = np.sum(eval_success) / self.num_eval
+                        avg_eval_reward = np.mean(eval_returns[agent])
+                        eval_success_rate = np.sum(eval_success[agent]) / self.num_eval
                         sys.stdout.write(f"Agent_{agent}:" + "\n")
                         sys.stdout.write("| %25s | %15s |" % ('Return (eval)', round(avg_eval_reward,2)) + "\n")
                         sys.stdout.write("| %25s | %15s |" % ('Success Rate (eval) ', round(eval_success_rate,2)) + "\n")
@@ -294,7 +294,7 @@ class Game:
                 # init student policy
                 masks = {}
                 states = {}
-                for agent, policy in self.student_policies:
+                for agent, policy in self.student_policies.items():
                     masks[agent] = torch.FloatTensor([1]).to(self.device) # not done until episode ends
                     states[agent] = policy.model.init_states(self.device) if self.recurrent else None
             
@@ -350,7 +350,7 @@ class Game:
             for agent, reward in ep_return.items():
                 ep_success[agent] = 1 if reward > 0 else 0
 
-            # save vedio
+            # save video
             if record_frames:
                 height, width, layers = img.shape
                 size = (width,height)
