@@ -123,10 +123,10 @@ class Game:
             n_traj = self.traj_per_itr
             for _ in range(n_traj):
                 self.collect()
-            while len(self.buffer[0]) < self.batch_size * 2:
+            while len(self.buffers['0']) < self.batch_size * 2:
                 self.collect()
                 n_traj += 1
-            total_steps = len(self.buffers[0])    
+            total_steps = len(self.buffers['0'])    
             samp_time = time.time() - sample_start
             print("{:.2f} s to collect {:6n} timesteps | {:3.2f}sample/s.".format(samp_time, total_steps, (total_steps)/samp_time))
             self.total_steps += total_steps
