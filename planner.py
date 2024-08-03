@@ -103,24 +103,26 @@ class Base_Planner(ABC):
             return self.query_codex(prompt_text)   
         
     def plan(self, text, n_ask=10):
+        if self.llm_model.startswith("GLM"):
+            self.messages.append(text)
         if text in self.plans_dict.keys():
             plans, probs = self.plans_dict[text]
         else:
             print(f"new obs: {text}")
             plans = {}
             plan_to_fulltext = {}
-            if self.llm_model.startswith("GLM"):
-                self.messages.append(text)
+            
             for _ in range(n_ask):
                 fulltext, plan = self.query_codex(text)
                 plans[plan] = plans.get(plan, 0) + 1/n_ask
                 plan_to_fulltext[plan] = fulltext
-            max_plan = max(plans, key=lambda k: plans[k])
             
             plans, probs = list(plans.keys()), list(plans.values())
             self.plans_dict[text] = (plans, probs)
             
-            self.messages.append(plan_to_fulltext[max_plan])
+        max_prob_index = probs.index(max(probs))
+        max_plan = plans[max_prob_index]
+        self.messages.append(f"Action: {{{max_plan}}}")
             
             # for k, v in self.plans_dict.items():
             #     print(f"{k}:{v}")

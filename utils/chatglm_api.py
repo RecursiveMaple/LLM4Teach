@@ -70,7 +70,8 @@ def generate_payload(prompts: List[str]):
     role = "user"
     for prompt in prompts:
         messages.append({"role": role, "content": prompt})
-        role = "assistant" if role == "user" else "user"
+        # role = "assistant" if role == "user" else "user"
+    
     return messages
   
 if __name__ == "__main__":
