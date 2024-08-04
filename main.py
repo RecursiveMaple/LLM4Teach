@@ -58,7 +58,7 @@ if __name__ == "__main__":
     parser.add_argument("--frame_stack", type=int, default=1)
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu")
     parser.add_argument("--policy", type=str, default='ppo')
-    parser.add_argument("--n_itr", type=int, default=20000, help="Number of iterations of the learning algorithm")
+    parser.add_argument("--n_itr", type=int, default=10000, help="Number of iterations of the learning algorithm")
     parser.add_argument("--traj_per_itr", type=int, default=10)
     parser.add_argument("--batch_size", type=int, default=128)
     parser.add_argument("--lam", type=float, default=0.95, help="Generalized advantage estimate discount")
