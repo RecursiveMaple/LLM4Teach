@@ -33,7 +33,7 @@ class Base_Planner(ABC):
         if not offline:
             # self.llm_model = "vicuna-33b"
             # self.llm_url = 'http://localhost:3300/v1/chat/completions'
-            self.llm_model = "GLM-4-Air"
+            self.llm_model = "GLM-4"
             self.llm_url = 'http://localhost:6000/v1/chat/completions'
             # self.llm_model = "openai"
             # self.llm_url = 'https://kimi.api.droneinterface.com/v1/chat/completions'
